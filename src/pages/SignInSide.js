@@ -12,6 +12,11 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Google from '@mui/icons-material/Google';
 import Microsoft from '@mui/icons-material/Microsoft';
+import "./auth.css";
+import { auth, provider } from "../config/firebase-config";
+import { signInWithPopup } from "firebase/auth";
+import { useNavigate, Navigate } from "react-router-dom";
+import { useGetUserInfo } from "../hooks/useGetUserInfo";
 
 function Copyright(props) {
   return (
@@ -30,6 +35,25 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignInSide() {
+  const navigate = useNavigate();
+  const { isAuth } = useGetUserInfo();
+
+  const signInWithGoogle = async () => {
+    const results = await signInWithPopup(auth, provider);
+    const authInfo = {
+      userID: results.user.uid,
+      name: results.user.displayName,
+      profilePhoto: results.user.photoURL,
+      isAuth: true,
+    };
+    localStorage.setItem("auth", JSON.stringify(authInfo));
+    navigate("/home");
+  };
+
+  if (isAuth) {
+    return <Navigate to="/home" />;
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -67,7 +91,7 @@ export default function SignInSide() {
               alignItems: 'center',
             }}
           >
-            <Button
+            <Button onClick={signInWithGoogle}
               variant="outlined"
               startIcon={<Google />}
               fullWidth
