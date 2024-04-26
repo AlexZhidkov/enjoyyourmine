@@ -13,10 +13,12 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Google from '@mui/icons-material/Google';
 import Microsoft from '@mui/icons-material/Microsoft';
 import "./auth.css";
-import { auth, provider } from "../config/firebase-config";
+import { auth, analytics, db, provider } from "../config/firebase-config";
 import { signInWithPopup } from "firebase/auth";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useGetUserInfo } from "../hooks/useGetUserInfo";
+import { logEvent } from "firebase/analytics";
+import { doc, setDoc } from "firebase/firestore";
 
 function Copyright(props) {
   return (
@@ -39,16 +41,30 @@ export default function SignInSide() {
   const { isAuth } = useGetUserInfo();
 
   const signInWithGoogle = async () => {
-    const results = await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    if (result?.user) {
+      onSuccessfulSignIn(result.user);
+    } else {
+      console.error("Sign In Failed");
+    }
+  };
+
+  const onSuccessfulSignIn = async (user) => {
+    logEvent(analytics, 'login', { uid: user.uid, providerId: user.providerData[0].providerId })
+    await setDoc(doc(db, "users", user.uid), {
+      displayName: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+    });
     const authInfo = {
-      userID: results.user.uid,
-      name: results.user.displayName,
-      profilePhoto: results.user.photoURL,
+      userID: user.uid,
+      name: user.displayName,
+      profilePhoto: user.photoURL,
       isAuth: true,
     };
     localStorage.setItem("auth", JSON.stringify(authInfo));
     navigate("/home");
-  };
+  }
 
   if (isAuth) {
     return <Navigate to="/home" />;
