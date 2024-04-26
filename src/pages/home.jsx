@@ -1,11 +1,14 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
+import LinearProgress from '@mui/material/LinearProgress';
+import { db } from "../config/firebase-config";
+import { collection, getDocs } from "firebase/firestore";
 
 const PackageCard = ({ title, description, selected, onChangeSelection }) => (
     <React.Fragment>
@@ -43,7 +46,10 @@ const WorkshopCard = ({ index, title, facilitator, description, actionText, onSe
 );
 
 export const Home = () => {
+    const [isDataLoading, setIsDataLoading] = useState(false);
     const [selectedPackage, setSelectedPackage] = useState(null);
+    const [availableWorkshops, setAvailableWorkshops] = useState([]);
+    const [selectedWorkshops, setSelectedWorkshops] = useState([]);
 
     const onSelectPackage = (title) => {
         setSelectedPackage(title);
@@ -55,14 +61,20 @@ export const Home = () => {
         { title: "Gold", description: "28 workshops and classes" }
     ];
 
-    const workshops = [
-        { title: "Improving your Financial Wellbeing", facilitator: "Grace", description: "" },
-        { title: "Money Matters", facilitator: "Rob Glenn", description: "" },
-        { title: "Money Mindset Mastery", facilitator: "Alfie", description: "Unlock the power of a positive money mindset and learn how to overcome limiting beliefs to achieve financial success." }
-    ];
+    useEffect(() => {
+        setIsDataLoading(true);
+        const fetchWorkshops = async () => {
+            const workshops = [];
+            const querySnapshot = await getDocs(collection(db, "workshops"));
+            querySnapshot.forEach((doc) => {
+                workshops.push({ id: doc.id, ...doc.data() });
+            });
+            setAvailableWorkshops(workshops);
+            setIsDataLoading(false);
+        };
 
-    const [availableWorkshops, setAvailableWorkshops] = useState(workshops);
-    const [selectedWorkshops, setSelectedWorkshops] = useState([]);
+        fetchWorkshops();
+    }, []);
 
     const onSelectWorkshop = (index) => {
         setSelectedWorkshops([
@@ -99,6 +111,7 @@ export const Home = () => {
             </Grid>
 
             <h1>Workshops</h1>
+            {isDataLoading && <LinearProgress />}
             <Grid container spacing={2}>
                 <Grid key="Selected" xs={12} sm={12} md={6}>
                     <h2>Selected - {selectedWorkshops.length}</h2>
