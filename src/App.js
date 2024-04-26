@@ -2,6 +2,7 @@ import './App.css';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import SignInSide from './pages/SignInSide';
 import { Home } from './pages/home';
+import { AppAdmin } from './pages/admin/admin';
 
 import GlobalStyles from "@mui/material/GlobalStyles";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -29,6 +30,7 @@ function App() {
           <Routes>
             <Route path="/" exact element={<SignInSide />} />
             <Route path="/home" element={<Home />} />
+            <Route path="/admin/*" element={<AppAdmin />} />
           </Routes>
         </Router>
       </ThemeProvider>
