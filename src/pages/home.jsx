@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import { db } from "../config/firebase-config";
 import { collection, getDocs } from "firebase/firestore";
 import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
+import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -32,13 +34,16 @@ const PackageCard = ({ title, description, selected, onChangeSelection }) => (
 
 const WorkshopCard = ({ id, title, facilitator, description, onSelected }) => (
     <React.Fragment>
+        <CardHeader
+            avatar={
+                <Avatar sx={{ bgcolor: '#f3b013' }} aria-label="presenter" alt={facilitator} src={"/avatars/" + facilitator + ".jpg"}>
+                    {facilitator}
+                </Avatar>
+            }
+            title={title}
+            subheader={facilitator}
+        />
         <CardContent>
-            <Typography sx={{ fontSize: 20 }} color="text.secondary" gutterBottom>
-                {title}
-            </Typography>
-            <Typography sx={{ fontWeight: 'bold' }}>
-                {facilitator}
-            </Typography>
             <Typography>
                 {description}
             </Typography>
@@ -51,13 +56,16 @@ const WorkshopCard = ({ id, title, facilitator, description, onSelected }) => (
 
 const SelectedWorkshopCard = ({ index, title, facilitator, description, onSelected }) => (
     <React.Fragment>
+        <CardHeader
+            avatar={
+                <Avatar sx={{ bgcolor: '#f3b013' }} aria-label="presenter" alt={facilitator} src={"/avatars/" + facilitator + ".jpg"}>
+                    {facilitator}
+                </Avatar>
+            }
+            title={title}
+            subheader={facilitator}
+        />
         <CardContent>
-            <Typography sx={{ fontSize: 20 }} color="text.secondary" gutterBottom>
-                {title}
-            </Typography>
-            <Typography sx={{ fontWeight: 'bold' }}>
-                {facilitator}
-            </Typography>
             <Typography>
                 {description}
             </Typography>
@@ -81,7 +89,7 @@ const AvailableWorkshops = ({ workshops, onSelectWorkshop }) => {
                         aria-controls={"panel" + index + "-content"}
                         id={"panel" + index + "-header"}
                     >
-                        <Typography sx={{ fontSize: 20, fontWeight: 'bold' }} color="text.secondary">
+                        <Typography sx={{ fontSize: 20 }} color="text.secondary">
                             &bull; {category}
                         </Typography>
                     </AccordionSummary>
