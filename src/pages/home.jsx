@@ -1,5 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
+import { db } from "../config/firebase-config";
+import { collection, getDocs } from "firebase/firestore";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
@@ -7,8 +9,10 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import LinearProgress from '@mui/material/LinearProgress';
-import { db } from "../config/firebase-config";
-import { collection, getDocs } from "firebase/firestore";
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const PackageCard = ({ title, description, selected, onChangeSelection }) => (
     <React.Fragment>
@@ -26,7 +30,7 @@ const PackageCard = ({ title, description, selected, onChangeSelection }) => (
     </React.Fragment>
 );
 
-const WorkshopCard = ({ index, title, facilitator, description, actionText, onSelected }) => (
+const WorkshopCard = ({ id, title, facilitator, description, onSelected }) => (
     <React.Fragment>
         <CardContent>
             <Typography sx={{ fontSize: 20 }} color="text.secondary" gutterBottom>
@@ -40,10 +44,64 @@ const WorkshopCard = ({ index, title, facilitator, description, actionText, onSe
             </Typography>
         </CardContent>
         <CardActions>
-            <Button onClick={() => onSelected(index)}>{actionText}</Button>
+            <Button onClick={() => onSelected(id)}>Select</Button>
         </CardActions>
     </React.Fragment>
 );
+
+const SelectedWorkshopCard = ({ index, title, facilitator, description, onSelected }) => (
+    <React.Fragment>
+        <CardContent>
+            <Typography sx={{ fontSize: 20 }} color="text.secondary" gutterBottom>
+                {title}
+            </Typography>
+            <Typography sx={{ fontWeight: 'bold' }}>
+                {facilitator}
+            </Typography>
+            <Typography>
+                {description}
+            </Typography>
+        </CardContent>
+        <CardActions>
+            <Button onClick={() => onSelected(index)}>Remove</Button>
+        </CardActions>
+    </React.Fragment>
+);
+
+const AvailableWorkshops = ({ workshops, onSelectWorkshop }) => {
+    workshops.sort((a, b) => a.title.localeCompare(b.title));
+    const categories = workshops.map(workshop => workshop.category).filter((value, index, self) => self.indexOf(value) === index);
+    categories.sort();
+    return (
+        <>
+            {categories.map((category, index) => (
+                <Accordion>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls={"panel" + index + "-content"}
+                        id={"panel" + index + "-header"}
+                    >
+                        <Typography sx={{ fontSize: 20, fontWeight: 'bold' }} color="text.secondary">
+                            &bull; {category}
+                        </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        {workshops.filter(workshop => workshop.category === category).map((workshop) => (
+                            <Card key={workshop.id} variant="outlined">
+                                <WorkshopCard
+                                    id={workshop.id}
+                                    title={workshop.title}
+                                    facilitator={workshop.facilitator}
+                                    description={workshop.description}
+                                    onSelected={onSelectWorkshop} />
+                            </Card>
+                        ))}
+                    </AccordionDetails>
+                </Accordion>
+            ))}
+        </>
+    )
+};
 
 export const Home = () => {
     const [isDataLoading, setIsDataLoading] = useState(false);
@@ -76,7 +134,8 @@ export const Home = () => {
         fetchWorkshops();
     }, []);
 
-    const onSelectWorkshop = (index) => {
+    const onSelectWorkshop = (id) => {
+        const index = availableWorkshops.findIndex(workshop => workshop.id === id);
         setSelectedWorkshops([
             ...selectedWorkshops,
             availableWorkshops[index]
@@ -117,29 +176,18 @@ export const Home = () => {
                     <h2>Selected - {selectedWorkshops.length}</h2>
                     {selectedWorkshops.map((workshop, index) => (
                         <Card key={index} variant="outlined">
-                            <WorkshopCard
+                            <SelectedWorkshopCard
                                 index={index}
                                 title={workshop.title}
                                 facilitator={workshop.facilitator}
                                 description={workshop.description}
-                                actionText="Remove"
                                 onSelected={onRemoveWorkshop} />
                         </Card>
                     ))}
                 </Grid>
                 <Grid key="Available" xs={12} sm={12} md={6}>
                     <h2>Available</h2>
-                    {availableWorkshops.map((workshop, index) => (
-                        <Card key={index} variant="outlined">
-                            <WorkshopCard
-                                index={index}
-                                title={workshop.title}
-                                facilitator={workshop.facilitator}
-                                description={workshop.description}
-                                actionText="Select"
-                                onSelected={onSelectWorkshop} />
-                        </Card>
-                    ))}
+                    <AvailableWorkshops workshops={availableWorkshops} onSelectWorkshop={onSelectWorkshop} />
                 </Grid>
             </Grid>
         </>
