@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
+import { useLocation } from "react-router-dom";
 import { db } from "../config/firebase-config";
 import { collection, getDocs } from "firebase/firestore";
 import Card from '@mui/material/Card';
@@ -27,7 +28,7 @@ const PackageCard = ({ title, description, selected, onChangeSelection }) => (
             </Typography>
         </CardContent>
         <CardActions>
-            {selected === title ? <Button disabled>Selected</Button> : <Button onClick={() => onChangeSelection(title)}>Select</Button>}
+            {selected.toLowerCase() === title.toLowerCase() ? <Button disabled>Selected</Button> : <Button onClick={() => onChangeSelection(title)}>Select</Button>}
         </CardActions>
     </React.Fragment>
 );
@@ -83,7 +84,7 @@ const AvailableWorkshops = ({ workshops, onSelectWorkshop }) => {
     return (
         <>
             {categories.map((category, index) => (
-                <Accordion>
+                <Accordion key={category}>
                     <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls={"panel" + index + "-content"}
@@ -117,6 +118,10 @@ export const Home = () => {
     const [availableWorkshops, setAvailableWorkshops] = useState([]);
     const [selectedWorkshops, setSelectedWorkshops] = useState([]);
 
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const preselectedPackage = queryParams.get('package');
+
     const onSelectPackage = (title) => {
         setSelectedPackage(title);
     };
@@ -129,6 +134,8 @@ export const Home = () => {
 
     useEffect(() => {
         setIsDataLoading(true);
+        setSelectedPackage(preselectedPackage);
+
         const fetchWorkshops = async () => {
             const workshops = [];
             const querySnapshot = await getDocs(collection(db, "workshops"));
