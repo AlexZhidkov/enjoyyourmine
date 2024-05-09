@@ -28,7 +28,7 @@ const PackageCard = ({ title, description, selected, onChangeSelection }) => (
             </Typography>
         </CardContent>
         <CardActions>
-            {selected.toLowerCase() === title.toLowerCase() ? <Button disabled>Selected</Button> : <Button onClick={() => onChangeSelection(title)}>Select</Button>}
+            {selected?.toLowerCase() === title.toLowerCase() ? <Button disabled>Selected</Button> : <Button onClick={() => onChangeSelection(title)}>Select</Button>}
         </CardActions>
     </React.Fragment>
 );
@@ -113,14 +113,14 @@ const AvailableWorkshops = ({ workshops, onSelectWorkshop }) => {
 };
 
 export const Home = () => {
-    const [isDataLoading, setIsDataLoading] = useState(false);
-    const [selectedPackage, setSelectedPackage] = useState(null);
-    const [availableWorkshops, setAvailableWorkshops] = useState([]);
-    const [selectedWorkshops, setSelectedWorkshops] = useState([]);
-
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const preselectedPackage = queryParams.get('package');
+
+    const [isDataLoading, setIsDataLoading] = useState(false);
+    const [selectedPackage, setSelectedPackage] = useState(preselectedPackage);
+    const [availableWorkshops, setAvailableWorkshops] = useState([]);
+    const [selectedWorkshops, setSelectedWorkshops] = useState([]);
 
     const onSelectPackage = (title) => {
         setSelectedPackage(title);
@@ -134,7 +134,6 @@ export const Home = () => {
 
     useEffect(() => {
         setIsDataLoading(true);
-        setSelectedPackage(preselectedPackage);
 
         const fetchWorkshops = async () => {
             const workshops = [];

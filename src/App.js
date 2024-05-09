@@ -4,7 +4,6 @@ import SignInSide from './pages/SignInSide';
 import { Home } from './pages/home';
 import { AppAdmin } from './pages/admin/admin';
 
-import GlobalStyles from "@mui/material/GlobalStyles";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
