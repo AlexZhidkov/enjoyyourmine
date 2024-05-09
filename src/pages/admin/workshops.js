@@ -9,15 +9,11 @@ import {
     Filter,
     SimpleShowLayout,
     SimpleForm,
-    ReferenceField,
-    ReferenceInput,
     TextField,
     TextInput,
     ShowButton,
     EditButton,
     DeleteButton,
-    RichTextField,
-    SelectInput,
 } from "react-admin";
 
 const WorkshopFilter = (props) => (

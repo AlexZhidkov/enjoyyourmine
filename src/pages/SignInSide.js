@@ -13,7 +13,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Google from '@mui/icons-material/Google';
 import Microsoft from '@mui/icons-material/Microsoft';
 import "./auth.css";
-import { auth, analytics, db, provider } from "../config/firebase-config";
+import { auth, analytics, db, googleAuthProvider, microsoftAuthProvider } from "../config/firebase-config";
 import { signInWithPopup } from "firebase/auth";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useGetUserInfo } from "../hooks/useGetUserInfo";
@@ -40,7 +40,15 @@ export default function SignInSide() {
   const navigate = useNavigate();
   const { isAuth } = useGetUserInfo();
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = () => {
+    signInWithProvider(googleAuthProvider);
+  };
+
+  const signInWithMicrosoft = () => {
+    signInWithProvider(microsoftAuthProvider);
+  };
+
+  const signInWithProvider = async (provider) => {
     const result = await signInWithPopup(auth, provider);
     if (result?.user) {
       onSuccessfulSignIn(result.user);
@@ -53,8 +61,8 @@ export default function SignInSide() {
     logEvent(analytics, 'login', { uid: user.uid, providerId: user.providerData[0].providerId })
     await setDoc(doc(db, "users", user.uid), {
       displayName: user.displayName,
-      email: user.email,
-      photoURL: user.photoURL,
+      email: user.email ?? user.providerData[0].email,
+      photoURL: user.photoURL ?? user.providerData[0].photoURL,
     });
     const authInfo = {
       userID: user.uid,
@@ -115,7 +123,7 @@ export default function SignInSide() {
             >
               Continue with Google
             </Button>
-            <Button
+            <Button onClick={signInWithMicrosoft}
               variant="outlined"
               startIcon={<Microsoft />}
               fullWidth
