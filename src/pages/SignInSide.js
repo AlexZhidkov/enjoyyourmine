@@ -1,8 +1,7 @@
+import { useState } from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
@@ -13,8 +12,8 @@ import Google from '@mui/icons-material/Google';
 import Microsoft from '@mui/icons-material/Microsoft';
 import "./auth.css";
 import { auth, analytics, db, googleAuthProvider, microsoftAuthProvider } from "../config/firebase-config";
-import { signInWithPopup } from "firebase/auth";
-import { useNavigate, Navigate } from "react-router-dom";
+import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import { logEvent } from "firebase/analytics";
 import { doc, setDoc } from "firebase/firestore";
 
@@ -36,6 +35,7 @@ const defaultTheme = createTheme();
 
 export default function SignInSide() {
   const navigate = useNavigate();
+  const [isSignUp, setIsSignUp] = useState(false);
 
   const signInWithGoogle = () => {
     signInWithProvider(googleAuthProvider);
@@ -70,8 +70,41 @@ export default function SignInSide() {
     console.log({
       email: data.get('email'),
       password: data.get('password'),
+      name: data.get('name'),
     });
+    if (isSignUp) {
+      createUserWithEmailAndPassword(auth, data.get('email'), data.get('password'))
+        .then((userCredential) => {
+          userCredential.user.displayName = data.get('name');
+          onSuccessfulSignIn(userCredential.user);
+        })
+        .catch((error) => {
+          console.error(error.code);
+          console.error(error.message);
+        });
+    } else {
+      signInWithEmailAndPassword(auth, data.get('email'), data.get('password'))
+        .then((userCredential) => {
+          onSuccessfulSignIn(userCredential.user);
+        })
+        .catch((error) => {
+          console.error(error.code);
+          console.error(error.message);
+        });
+    }
   };
+
+  const resetPassword = () => {
+    const data = new FormData(document.forms[0]);
+    sendPasswordResetEmail(auth, data.get('email'))
+      .then(() => {
+        alert("Password Reset Email Sent");
+      })
+      .catch((error) => {
+        console.error(error.code);
+        console.error(error.message);
+      });
+  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -141,29 +174,40 @@ export default function SignInSide() {
                 id="password"
                 autoComplete="current-password"
               />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              />
+              {isSignUp && <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="name"
+                label="Name"
+                type="text"
+                id="name"
+                autoComplete="name"
+              />}
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
               >
-                Sign In
+                {isSignUp ? "Sign Up" : "Sign In"}
               </Button>
               <Grid container>
                 <Grid item xs>
-                  <Link href="#" variant="body2">
+                  <Link variant="body2" onClick={() => resetPassword()}>
                     Forgot password?
                   </Link>
                 </Grid>
-                <Grid item>
-                  <Link href="#" variant="body2">
+                {!isSignUp && <Grid item>
+                  <Link variant="body2" onClick={() => setIsSignUp(true)}>
                     {"Don't have an account? Sign Up"}
                   </Link>
-                </Grid>
+                </Grid>}
+                {isSignUp && <Grid item>
+                  <Link variant="body2" onClick={() => setIsSignUp(false)}>
+                    {"Already have an account? Sign In"}
+                  </Link>
+                </Grid>}
               </Grid>
               <Copyright sx={{ mt: 5 }} />
             </Box>
