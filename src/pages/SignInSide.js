@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -16,7 +15,6 @@ import "./auth.css";
 import { auth, analytics, db, googleAuthProvider, microsoftAuthProvider } from "../config/firebase-config";
 import { signInWithPopup } from "firebase/auth";
 import { useNavigate, Navigate } from "react-router-dom";
-import { useGetUserInfo } from "../hooks/useGetUserInfo";
 import { logEvent } from "firebase/analytics";
 import { doc, setDoc } from "firebase/firestore";
 
@@ -38,7 +36,6 @@ const defaultTheme = createTheme();
 
 export default function SignInSide() {
   const navigate = useNavigate();
-  const { isAuth } = useGetUserInfo();
 
   const signInWithGoogle = () => {
     signInWithProvider(googleAuthProvider);
@@ -70,12 +67,7 @@ export default function SignInSide() {
       profilePhoto: user.photoURL,
       isAuth: true,
     };
-    localStorage.setItem("auth", JSON.stringify(authInfo));
-    navigate("/home");
-  }
-
-  if (isAuth) {
-    return <Navigate to="/home" />;
+    navigate("/");
   }
 
   const handleSubmit = (event) => {

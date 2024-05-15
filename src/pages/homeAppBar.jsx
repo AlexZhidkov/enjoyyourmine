@@ -28,14 +28,14 @@ export default function HomeAppBar() {
         handleCloseUserMenu();
         await auth.signOut();
         console.log('User signed out');
+        window.location.href = 'https://enjoyyourmine.com';
     };
 
     React.useEffect(() => {
         const getUser = async () => {
             const user = await auth.currentUser;
-            console.log(user);
             if (!user) {
-                navigate("/");
+                navigate("/login");
             }
             setUser(user);
         }
@@ -52,8 +52,9 @@ export default function HomeAppBar() {
                         color="inherit"
                         aria-label="home"
                         sx={{ mr: 2 }}
+                        onClick={() => window.location.href = 'https://enjoyyourmine.com'}
                     >
-                        <HomeIcon onClick={() => window.location.href = 'https://enjoyyourmine.com'} />
+                        <HomeIcon />
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         Enjoy Your Mine App

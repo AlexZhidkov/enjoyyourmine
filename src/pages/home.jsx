@@ -1,10 +1,7 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from "react-router-dom";
-import { db } from "../config/firebase-config";
-import { collection, getDocs } from "firebase/firestore";
+import { useState } from 'react';
+import { useLocation, useLoaderData } from "react-router-dom";
 import { SelectedWorkshopCard, AvailableWorkshops } from "./workshop";
-import { AuthContext } from "../AuthProvider";
 import HomeAppBar from './homeAppBar';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -12,7 +9,6 @@ import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
-import LinearProgress from '@mui/material/LinearProgress';
 
 const PackageCard = ({ title, description, selected, onChangeSelection }) => (
     <React.Fragment>
@@ -31,14 +27,12 @@ const PackageCard = ({ title, description, selected, onChangeSelection }) => (
 );
 
 export const Home = () => {
-    let navigate = useNavigate();
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const preselectedPackage = queryParams.get('package');
 
-    const [isDataLoading, setIsDataLoading] = useState(false);
+    const availableWorkshops = useLoaderData();
     const [selectedPackage, setSelectedPackage] = useState(preselectedPackage);
-    const [availableWorkshops, setAvailableWorkshops] = useState([]);
     const [selectedWorkshops, setSelectedWorkshops] = useState([]);
 
     const onSelectPackage = (title) => {
@@ -51,34 +45,17 @@ export const Home = () => {
         { title: "Gold", description: "28 workshops and classes" }
     ];
 
-    useEffect(() => {
-        const fetchWorkshops = async () => {
-            const workshops = [];
-            const querySnapshot = await getDocs(collection(db, "workshops"));
-            querySnapshot.forEach((doc) => {
-                workshops.push({ id: doc.id, ...doc.data() });
-            });
-            setAvailableWorkshops(workshops);
-            setIsDataLoading(false);
-        };
-
-        fetchWorkshops();
-    }, []);
-
     const onSelectWorkshop = (id) => {
         const index = availableWorkshops.findIndex(workshop => workshop.id === id);
         setSelectedWorkshops([
             ...selectedWorkshops,
             availableWorkshops[index]
         ]);
-        setAvailableWorkshops(availableWorkshops.filter((workshop, i) => i !== index));
+        availableWorkshops.splice(index, 1);
     };
 
     const onRemoveWorkshop = (index) => {
-        setAvailableWorkshops([
-            ...availableWorkshops,
-            selectedWorkshops[index]
-        ]);
+        availableWorkshops.splice(0, 0, selectedWorkshops[index]);
         setSelectedWorkshops(selectedWorkshops.filter((workshop, i) => i !== index));
     };
 
@@ -102,7 +79,6 @@ export const Home = () => {
             </Grid>
 
             <h1>Workshops</h1>
-            {isDataLoading && <LinearProgress />}
             <Grid container spacing={2}>
                 <Grid key="Selected" xs={12} sm={12} md={6}>
                     <h2>Selected - {selectedWorkshops.length}</h2>
