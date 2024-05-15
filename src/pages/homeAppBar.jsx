@@ -7,10 +7,13 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import HomeIcon from '@mui/icons-material/Home';
+import PersonIcon from '@mui/icons-material/Person';
+import LogoutIcon from '@mui/icons-material/Logout';
 import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-
+import ListItemText from '@mui/material/ListItemText';
+import ListItemIcon from '@mui/material/ListItemIcon';
 
 export default function HomeAppBar() {
     const navigate = useNavigate();
@@ -80,10 +83,16 @@ export default function HomeAppBar() {
                             onClose={handleCloseUserMenu}
                         >
                             <MenuItem key='Profile' onClick={handleCloseUserMenu}>
-                                <Typography textAlign="center">Profile</Typography>
+                                <ListItemIcon>
+                                    <PersonIcon />
+                                </ListItemIcon>
+                                <ListItemText>Profile</ListItemText>
                             </MenuItem>
                             <MenuItem key='Logout' onClick={logout}>
-                                <Typography textAlign="center">Logout</Typography>
+                                <ListItemIcon>
+                                    <LogoutIcon />
+                                </ListItemIcon>
+                                <ListItemText>Logout</ListItemText>
                             </MenuItem>
                         </Menu>
                     </Box>
