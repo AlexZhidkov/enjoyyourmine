@@ -61,13 +61,7 @@ export default function SignInSide() {
       email: user.email ?? user.providerData[0].email,
       photoURL: user.photoURL ?? user.providerData[0].photoURL,
     });
-    const authInfo = {
-      userID: user.uid,
-      name: user.displayName,
-      profilePhoto: user.photoURL,
-      isAuth: true,
-    };
-    navigate("/");
+    navigate("/" + window.location.search);
   }
 
   const handleSubmit = (event) => {

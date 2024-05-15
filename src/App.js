@@ -3,7 +3,7 @@ import { createBrowserRouter, RouterProvider, redirect } from "react-router-dom"
 import SignInSide from './pages/SignInSide';
 import { Home } from './pages/home';
 import { AppAdmin } from './pages/admin/admin';
-import { auth, db } from "./config/firebase-config";
+import { db } from "./config/firebase-config";
 import { collection, getDocs } from "firebase/firestore";
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -27,16 +27,17 @@ const theme = createTheme({
 });
 
 const dataLoader = async () => {
-  const user = await auth.currentUser;
-  if (!user) {
-    return redirect("/login");
+  try {
+    const workshops = [];
+    const querySnapshot = await getDocs(collection(db, "workshops"));
+    querySnapshot.forEach((doc) => {
+      workshops.push({ id: doc.id, ...doc.data() });
+    });
+    return workshops;
+  } catch (error) {
+    console.error("Error getting workshops: ", error);
+    return redirect("/login" + window.location.search);
   }
-  const workshops = [];
-  const querySnapshot = await getDocs(collection(db, "workshops"));
-  querySnapshot.forEach((doc) => {
-    workshops.push({ id: doc.id, ...doc.data() });
-  });
-  return workshops;
 };
 
 function App() {
