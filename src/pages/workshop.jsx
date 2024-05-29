@@ -8,19 +8,30 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
+import CardActionArea from '@mui/material/CardActionArea';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+
+const getFacilitatorUrl = (facilitator) => {
+    return 'https://enjoyyourmine.com/our-presenters/#' + facilitator.toLowerCase().replace(/ /g, "-");
+}
 
 const WorkshopCard = ({ id, title, facilitator, description, onSelected }) => (
     <React.Fragment>
         <CardHeader
             avatar={
-                <Avatar sx={{ bgcolor: '#f3b013' }} aria-label="presenter" alt={facilitator} src={"/avatars/" + facilitator + ".jpg"}>
-                    {facilitator}
-                </Avatar>
+                <CardActionArea href={getFacilitatorUrl(facilitator)} target='_blank'>
+                    <Avatar sx={{ bgcolor: '#f3b013' }} aria-label="presenter" alt={facilitator} src={"/avatars/" + facilitator + ".jpg"}>
+                        {facilitator}
+                    </Avatar>
+                </CardActionArea>
             }
             title={title}
-            subheader={facilitator}
+            subheader={
+                <CardActionArea href={getFacilitatorUrl(facilitator)} target='_blank'>
+                    {facilitator}
+                </CardActionArea>
+            }
         />
         <CardContent>
             <Typography>
@@ -37,12 +48,18 @@ export const SelectedWorkshopCard = ({ index, title, facilitator, description, o
     <React.Fragment>
         <CardHeader
             avatar={
-                <Avatar sx={{ bgcolor: '#f3b013' }} aria-label="presenter" alt={facilitator} src={"/avatars/" + facilitator + ".jpg"}>
-                    {facilitator}
-                </Avatar>
+                <CardActionArea href={getFacilitatorUrl(facilitator)} target='_blank'>
+                    <Avatar sx={{ bgcolor: '#f3b013' }} aria-label="presenter" alt={facilitator} src={"/avatars/" + facilitator + ".jpg"}>
+                        {facilitator}
+                    </Avatar>
+                </CardActionArea>
             }
             title={title}
-            subheader={facilitator}
+            subheader={
+                <CardActionArea href={getFacilitatorUrl(facilitator)} target='_blank'>
+                    {facilitator}
+                </CardActionArea>
+            }
         />
         <CardContent>
             <Typography>
