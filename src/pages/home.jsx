@@ -67,6 +67,16 @@ export const Home = () => {
         setSelectedWorkshops(selectedWorkshops.filter((workshop, i) => i !== index));
     };
 
+    const createEmail = () => {
+        var i = 1;
+        var body = 'Hi Hazel, \n\nI would like to request the following workshops:\n';
+        selectedWorkshops.forEach(workshop => {
+            body += ` ${i++}. ${workshop.facilitator} - ${workshop.title}\n`;
+        });
+        body += `\nThanks,\n${auth.currentUser.displayName}`;
+        return 'mailto:jamie@fakeemail.com?subject=Workshops Request&body=' + encodeURIComponent(body);
+    };
+
     return (
         <>
             <HomeAppBar />
@@ -90,6 +100,9 @@ export const Home = () => {
             <Grid container spacing={2}>
                 <Grid key="Selected" xs={12} sm={12} md={6}>
                     <h2>Selected - {selectedWorkshops.length}</h2>
+                    <Button variant="contained" href={createEmail()}>
+                        Request Workshops
+                    </Button>
                     {selectedWorkshops.map((workshop, index) => (
                         <Card key={index} variant="outlined">
                             <SelectedWorkshopCard
