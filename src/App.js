@@ -3,7 +3,7 @@ import { createBrowserRouter, RouterProvider, redirect } from "react-router-dom"
 import SignInSide from './pages/SignInSide';
 import { Home } from './pages/home';
 import { AppAdmin } from './pages/admin/admin';
-import { db } from "./config/firebase-config";
+import { db, auth } from "./config/firebase-config";
 import { collection, getDocs } from "firebase/firestore";
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -28,12 +28,19 @@ const theme = createTheme({
 
 const dataLoader = async () => {
   try {
-    const workshops = [];
-    const querySnapshot = await getDocs(collection(db, "workshops"));
-    querySnapshot.forEach((doc) => {
-      workshops.push({ id: doc.id, ...doc.data() });
+    const availableWorkshops = [];
+    (await getDocs(collection(db, "workshops"))).forEach((doc) => {
+      availableWorkshops.push({ id: doc.id, ...doc.data() });
     });
-    return workshops;
+    const selectedWorkshops = [];
+    (await getDocs(collection(db, "users", auth.currentUser.uid, "workshops"))).forEach((doc) => {
+      selectedWorkshops.push({ id: doc.id, ...doc.data() });
+      const index = availableWorkshops.findIndex(workshop => workshop.id === doc.id);
+      if (index >= 0) {
+        availableWorkshops[index].isSelected = true;
+      }
+    });
+    return { availableWorkshops, selectedWorkshops };
   } catch (error) {
     console.error("Error getting workshops: ", error);
     return redirect("/login" + window.location.search);

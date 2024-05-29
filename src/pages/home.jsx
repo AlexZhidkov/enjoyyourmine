@@ -1,6 +1,8 @@
 import React from 'react';
 import { useState } from 'react';
 import { useLocation, useLoaderData } from "react-router-dom";
+import { db, auth } from "../config/firebase-config";
+import { doc, setDoc, deleteDoc } from "firebase/firestore";
 import { SelectedWorkshopCard, AvailableWorkshops } from "./workshop";
 import HomeAppBar from './homeAppBar';
 import Card from '@mui/material/Card';
@@ -31,9 +33,10 @@ export const Home = () => {
     const queryParams = new URLSearchParams(location.search);
     const preselectedPackage = queryParams.get('package');
 
-    const availableWorkshops = useLoaderData();
+    const loaderData = useLoaderData();
+    const availableWorkshops = loaderData.availableWorkshops || [];
     const [selectedPackage, setSelectedPackage] = useState(preselectedPackage);
-    const [selectedWorkshops, setSelectedWorkshops] = useState([]);
+    const [selectedWorkshops, setSelectedWorkshops] = useState(loaderData.selectedWorkshops || []);
 
     const onSelectPackage = (title) => {
         setSelectedPackage(title);
@@ -47,15 +50,20 @@ export const Home = () => {
 
     const onSelectWorkshop = (id) => {
         const index = availableWorkshops.findIndex(workshop => workshop.id === id);
+        setDoc(doc(db, "users", auth.currentUser.uid, "workshops", id), availableWorkshops[index]);
         setSelectedWorkshops([
             ...selectedWorkshops,
             availableWorkshops[index]
         ]);
-        availableWorkshops.splice(index, 1);
+        availableWorkshops[index].isSelected = true;
     };
 
     const onRemoveWorkshop = (index) => {
-        availableWorkshops.splice(0, 0, selectedWorkshops[index]);
+        deleteDoc(doc(db, "users", auth.currentUser.uid, "workshops", selectedWorkshops[index].id));
+        const availableWorkshopsIndex = availableWorkshops.findIndex(workshop => workshop.id === selectedWorkshops[index].id);
+        if (availableWorkshopsIndex >= 0) {
+            availableWorkshops[availableWorkshopsIndex].isSelected = false;
+        }
         setSelectedWorkshops(selectedWorkshops.filter((workshop, i) => i !== index));
     };
 
@@ -95,7 +103,7 @@ export const Home = () => {
                 </Grid>
                 <Grid key="Available" xs={12} sm={12} md={6}>
                     <h2>Available</h2>
-                    <AvailableWorkshops workshops={availableWorkshops} onSelectWorkshop={onSelectWorkshop} />
+                    <AvailableWorkshops workshops={availableWorkshops.filter(w => w.isSelected !== true)} onSelectWorkshop={onSelectWorkshop} />
                 </Grid>
             </Grid>
         </>
