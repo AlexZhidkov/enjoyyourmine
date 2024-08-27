@@ -12,18 +12,18 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 
-const PackageCard = ({ title, description, selected, onChangeSelection }) => (
+const PackageCard = ({ workshopPackage, selected, onChangeSelection }) => (
     <React.Fragment>
         <CardContent>
             <Typography sx={{ fontSize: 65, fontWeight: 700 }} color="text.secondary" gutterBottom>
-                {title}
+                {workshopPackage.title}
             </Typography>
             <Typography>
-                {description}
+                {workshopPackage.description}
             </Typography>
         </CardContent>
         <CardActions>
-            {selected?.toLowerCase() === title.toLowerCase() ? <Button disabled>Selected</Button> : <Button onClick={() => onChangeSelection(title)}>Select</Button>}
+            {selected?.toLowerCase() === workshopPackage.title.toLowerCase() ? <Button disabled>Selected</Button> : <Button onClick={() => onChangeSelection(workshopPackage)}>Select</Button>}
         </CardActions>
     </React.Fragment>
 );
@@ -31,22 +31,22 @@ const PackageCard = ({ title, description, selected, onChangeSelection }) => (
 export const Home = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-    const preselectedPackage = queryParams.get('package');
-
-    const loaderData = useLoaderData();
-    const availableWorkshops = loaderData.availableWorkshops || [];
-    const [selectedPackage, setSelectedPackage] = useState(preselectedPackage);
-    const [selectedWorkshops, setSelectedWorkshops] = useState(loaderData.selectedWorkshops || []);
-
-    const onSelectPackage = (title) => {
-        setSelectedPackage(title);
-    };
-
     const packages = [
+        { title: "Custom", description: "Build your own package" },
         { title: "Bronze", description: "14 workshops and classes" },
         { title: "Silver", description: "21 workshops and classes" },
         { title: "Gold", description: "28 workshops and classes" }
     ];
+    const loaderData = useLoaderData();
+    const preselectedPackageTitle = queryParams.get('package');
+    const preselectedPackageIndex = packages.findIndex(workshopPackage => workshopPackage.title === preselectedPackageTitle);
+    const [selectedPackage, setSelectedPackage] = useState(packages[preselectedPackageIndex]);
+    const availableWorkshops = loaderData.availableWorkshops || [];
+    const [selectedWorkshops, setSelectedWorkshops] = useState(loaderData.selectedWorkshops || []);
+
+    const onSelectPackage = (workshopPackage) => {
+        setSelectedPackage(workshopPackage);
+    };
 
     const onSelectWorkshop = (id) => {
         const index = availableWorkshops.findIndex(workshop => workshop.id === id);
@@ -83,12 +83,11 @@ export const Home = () => {
             <h1>EnjoyYourMine Workshop Packages</h1>
             <Grid container spacing={2}>
                 {packages.map((workshopsPackage) => (
-                    <Grid key={workshopsPackage.title} xs={12} sm={12} md={4}>
+                    <Grid key={workshopsPackage.title} xs={12} sm={12} md={3}>
                         <Card variant="outlined">
                             <PackageCard
-                                title={workshopsPackage.title}
-                                description={workshopsPackage.description}
-                                selected={selectedPackage}
+                                workshopPackage={workshopsPackage}
+                                selected={selectedPackage?.title}
                                 onChangeSelection={onSelectPackage}
                             />
                         </Card>
