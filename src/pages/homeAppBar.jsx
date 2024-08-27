@@ -43,7 +43,7 @@ export default function HomeAppBar() {
             setUser(user);
         }
         getUser();
-    }, []);
+    }, [navigate]);
 
     return (
         <Box sx={{ flexGrow: 1 }}>
