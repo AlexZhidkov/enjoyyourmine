@@ -32,10 +32,10 @@ export const Home = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const packages = [
-        { title: "Custom", description: "Build your own package" },
-        { title: "Bronze", description: "14 workshops and classes" },
-        { title: "Silver", description: "21 workshops and classes" },
-        { title: "Gold", description: "28 workshops and classes" }
+        { title: "Custom", description: "Build your own package", total: undefined },
+        { title: "Bronze", description: "14 workshops and classes", total: 14 },
+        { title: "Silver", description: "21 workshops and classes", total: 21 },
+        { title: "Gold", description: "28 workshops and classes", total: 28 },
     ];
     const loaderData = useLoaderData();
     const preselectedPackageTitle = queryParams.get('package');
@@ -98,7 +98,7 @@ export const Home = () => {
             <h1>Workshops</h1>
             <Grid container spacing={2}>
                 <Grid key="Selected" xs={12} sm={12} md={6}>
-                    <h2>Selected - {selectedWorkshops.length}</h2>
+                    <h2>Selected - {selectedWorkshops.length} {selectedPackage?.total ? ' out of ' + selectedPackage.total : ''}</h2>
                     <Button variant="contained" href={createEmail()}>
                         Request Workshops
                     </Button>
@@ -115,7 +115,10 @@ export const Home = () => {
                 </Grid>
                 <Grid key="Available" xs={12} sm={12} md={6}>
                     <h2>Available</h2>
-                    <AvailableWorkshops workshops={availableWorkshops.filter(w => w.isSelected !== true)} onSelectWorkshop={onSelectWorkshop} />
+                    <AvailableWorkshops
+                        workshops={availableWorkshops.filter(w => w.isSelected !== true)}
+                        isDisabled={selectedPackage?.total ? selectedWorkshops.length >= selectedPackage?.total : false}
+                        onSelectWorkshop={onSelectWorkshop} />
                 </Grid>
             </Grid>
         </>

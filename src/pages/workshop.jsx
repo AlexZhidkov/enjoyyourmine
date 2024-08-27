@@ -16,7 +16,7 @@ const getFacilitatorUrl = (facilitator) => {
     return 'https://enjoyyourmine.com/our-presenters/#' + facilitator.toLowerCase().replace(/ /g, "-");
 }
 
-const WorkshopCard = ({ id, title, facilitator, description, onSelected }) => (
+const WorkshopCard = ({ id, title, facilitator, description, isDisabled, onSelected }) => (
     <React.Fragment>
         <CardHeader
             avatar={
@@ -39,7 +39,7 @@ const WorkshopCard = ({ id, title, facilitator, description, onSelected }) => (
             </Typography>
         </CardContent>
         <CardActions>
-            <Button onClick={() => onSelected(id)}>Select</Button>
+            <Button disabled={isDisabled} onClick={() => onSelected(id)}>Select</Button>
         </CardActions>
     </React.Fragment>
 );
@@ -72,7 +72,7 @@ export const SelectedWorkshopCard = ({ index, title, facilitator, description, o
     </React.Fragment>
 );
 
-export const AvailableWorkshops = ({ workshops, onSelectWorkshop }) => {
+export const AvailableWorkshops = ({ workshops, isDisabled, onSelectWorkshop }) => {
     workshops.sort((a, b) => a.title.localeCompare(b.title));
     const categories = workshops.map(workshop => workshop.category).filter((value, index, self) => self.indexOf(value) === index);
     categories.sort();
@@ -97,6 +97,7 @@ export const AvailableWorkshops = ({ workshops, onSelectWorkshop }) => {
                                     title={workshop.title}
                                     facilitator={workshop.facilitator}
                                     description={workshop.description}
+                                    isDisabled={isDisabled}
                                     onSelected={onSelectWorkshop} />
                             </Card>
                         ))}
